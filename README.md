@@ -32,24 +32,24 @@ func init() {
     }
 
     // 生成加密客户端
-	rsaClient, err := sec.NewRSADefault(privateKey, publicKey)
-	if err != nil {
-		Panic("PrivateKeyOrPublicKeyError")
-	}
+    rsaClient, err := sec.NewRSADefault(privateKey, publicKey)
+    if err != nil {
+        Panic("PrivateKeyOrPublicKeyError")
+    }
 
     // 设置签名算法
     const hash = crypto.SHA256
-	rsaClient.SetHash(hash)
+    rsaClient.SetHash(hash)
 
     // 设置业务方公钥 (加解密签名使用己方密钥对，验签需使用业务方公钥)
     // // 解析字符串公钥
-	// var businessPub = sec.ParsePublicKey(businessPubKey)
+    // var businessPub = sec.ParsePublicKey(businessPubKey)
 
     // 读取业务方公钥文件
     const businessPubPath = "secret/businessPublic.pem"
     businessPub, _ := ioutil.ReadFile(businessPubPath)
 
-	rsaClient.SetBusinessPubKey(businessPub)
+    rsaClient.SetBusinessPubKey(businessPub)
 
     RSACipher = rsaClient
 }
