@@ -78,7 +78,7 @@ type RSACipher interface {
 ### aes 使用CBC随机填充方法，保证每次加密结果都不相同
 
 ```go
-var key = "123asdfaksjglasdjglk"
+var key = "asdlfkajg1028412035ulj.c,xmop830"
 var AESClient = sec.NewAES(key)
 
 // 加密
