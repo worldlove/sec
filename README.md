@@ -22,56 +22,60 @@ import (
 var RSAClient sec.RSACipher
 
 func init() {
-    // 读取公钥私钥文件
-    const priPath = "secret/private.pem"
-    const pubPath = "secret/public.pem"
-    priKey, err1 := ioutil.ReadFile(priPath)
-    pubKey, err2 := ioutil.ReadFile(pubPath)
-    if err1 != nil || err2 != nil {
-        panic("RSAKey Read Error")
-    }
 
-    // 生成加密客户端
-    rsaClient, err := sec.NewRSADefault(privateKey, publicKey)
-    if err != nil {
-        Panic("PrivateKeyOrPublicKeyError")
-    }
+	// 读取公钥私钥文件
+	const priPath = "secret/private.pem"
+	const pubPath = "secret/public.pem"
+	privateKey, err1 := ioutil.ReadFile(priPath)
+	publicKey, err2 := ioutil.ReadFile(pubPath)
+	if err1 != nil || err2 != nil {
+		panic("RSAKey Read Error")
+	}
 
-    // 设置签名算法
-    const hash = crypto.SHA256
-    rsaClient.SetHash(hash)
+	// 生成加密客户端
+	// 默认使用PKCS1私钥
+	rsaClient, err := sec.NewRSADefault(privateKey, publicKey)
+	// // 设置私钥格式(使用PKCS8)
+	// rsaClient, err := sec.NewRSA(privateKey, publicKey, sec.RSAPKCS8)
+	if err != nil {
+		panic("PrivateKeyOrPublicKeyError")
+	}
 
-    // 设置业务方公钥 (加解密签名使用己方密钥对，验签需使用业务方公钥)
-    // // 解析字符串公钥
-    // var businessPub = sec.ParsePublicKey(businessPubKey)
+	// 设置签名算法
+	const hash = crypto.SHA256
+	rsaClient.SetHash(hash)
 
-    // 读取业务方公钥文件
-    const businessPubPath = "secret/businessPublic.pem"
-    businessPub, _ := ioutil.ReadFile(businessPubPath)
+	// 设置业务方公钥 (加解密签名使用己方密钥对，验签需使用业务方公钥)
+	// // 解析字符串公钥
+	// var businessPub = sec.ParsePublicKey(businessPubKey)
 
-    rsaClient.SetBusinessPubKey(businessPub)
+	// 读取业务方公钥文件
+	const businessPubPath = "secret/businessPublic.pem"
+	businessPub, _ := ioutil.ReadFile(businessPubPath)
+	rsaClient.SetBusinessPubKey(businessPub)
 
-    RSACipher = rsaClient
+	RSAClient = rsaClient
 }
 
 
 
 
-// 通用接口
+// 接口列表
+
 type RSACipher interface {
-	SetHash(crypto.Hash)
-	SetBusinessPubKey(publicKey []byte) error
-	Encrypt(plaintext []byte) ([]byte, error)
-	Decrypt(ciphertext []byte) ([]byte, error)
-	Sign(src []byte) ([]byte, error)
-	Verify(src []byte, sign []byte) error
-	VerifyBusiness(src []byte, sign []byte) error
+	SetHash(crypto.Hash)                          // 设置签名算法
+	SetBusinessPubKey(publicKey []byte) error     // 设置业务方公钥
+	Encrypt(plaintext []byte) ([]byte, error)     // 加密
+	Decrypt(ciphertext []byte) ([]byte, error)    // 解密
+	Sign(src []byte) ([]byte, error)              // 签名
+	Verify(src []byte, sign []byte) error         // 验签 （用于测试己方签名）
+	VerifyBusiness(src []byte, sign []byte) error // 验签 （验证业务方签名）
 }
 
 ```
 
 ## aes 使用方法
-### aes 使用CBC随机填充方法，保证每次加密结果都不相同，提高安全性
+### aes 使用CBC随机填充方法，保证每次加密结果都不相同
 
 ```go
 var key = "123asdfaksjglasdjglk"

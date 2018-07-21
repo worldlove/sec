@@ -25,6 +25,9 @@ const (
 func ToBase64(src []byte) string {
 	return base64.StdEncoding.EncodeToString(src)
 }
+func ToBytes(b64 string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(b64)
+}
 
 type RSACipher interface {
 	SetHash(crypto.Hash)
